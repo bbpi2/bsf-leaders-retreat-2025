@@ -2,9 +2,9 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "BSF Leaders Retreat 2025",
+    "title": "BSF Retreat 2025",
     "section": "",
-    "text": "Friday\nSaturday\nSunday"
+    "text": "Welcome to the BSF Leaders’ Retreat 2025 🤩\n\n\n\n\n…we have finally booked our location for retreat…\n\n\n\n\n…can you guess where we will be?\n\n\n\n\nI’ll give you three clues…\n\n\n\n\nClue #1\n\n\n\n\nClue #2\n\n\n\n\n\n\n\n\n\nClue #3: Acts 8:26\n\n\n\n\n…that’s right, drumroll please…\n\n\n\n\n\n\n\n\n\n…we’re going to Cowes, Philip Island 🎉\n\n\n\n\n\n\n\n\n\n\n\n\n…keep your eyes peeled for details 👀🍌\n\n\n\n\n…but in the meanwhile please transfer $x for accommodation (see chat)."
   },
   {
     "objectID": "index.html#schedule",
@@ -32,6 +32,41 @@
     "href": "index.html#location",
     "title": "BSF Leaders Retreat 2025",
     "section": "Location",
-    "text": "Location\n\nlibrary(leaflet)\n\nleaflet() %&gt;%\n  addTiles() %&gt;%  # Add default OpenStreetMap map tiles\n  setView(145.237, -38.456, zoom=8) %&gt;% \n  addMarkers(lng=145.237, lat=-38.456, popup=\"We will be somewhere around here!\")"
+    "text": "Location\n\nlibrary(leaflet)\n\nleaflet() %&gt;%\n  addTiles() %&gt;%  # Add default OpenStreetMap map tiles\n  setView(145.237, -38.456, zoom=8) %&gt;% \n  addMarkers(lng=145.237, lat=-38.456, popup=\"We will be somewhere around here!\")\n\n\n\n\n\n::::{.cr-section} \nHello World\nNarrative with trigger @cr-sticky\n\n:::{#cr-sticky}\n1asfs\n:::\n\n\n::::"
+  },
+  {
+    "objectID": "index-frame.html",
+    "href": "index-frame.html",
+    "title": "BSF Leaders Retreat 2025",
+    "section": "",
+    "text": "Friday\nSaturday\nSunday"
+  },
+  {
+    "objectID": "index-frame.html#schedule",
+    "href": "index-frame.html#schedule",
+    "title": "BSF Leaders Retreat 2025",
+    "section": "",
+    "text": "Friday\nSaturday\nSunday"
+  },
+  {
+    "objectID": "index-frame.html#menu",
+    "href": "index-frame.html#menu",
+    "title": "BSF Leaders Retreat 2025",
+    "section": "Menu",
+    "text": "Menu\nMeal 1:"
+  },
+  {
+    "objectID": "index-frame.html#to-bring-list",
+    "href": "index-frame.html#to-bring-list",
+    "title": "BSF Leaders Retreat 2025",
+    "section": "To Bring List",
+    "text": "To Bring List\n\nYourself"
+  },
+  {
+    "objectID": "index-frame.html#location",
+    "href": "index-frame.html#location",
+    "title": "BSF Leaders Retreat 2025",
+    "section": "Location",
+    "text": "Location\n\nlibrary(leaflet)\n\nleaflet() %&gt;%\n  addTiles() %&gt;%  # Add default OpenStreetMap map tiles\n  setView(145.237, -38.456, zoom=8) %&gt;% \n  addMarkers(lng=145.237, lat=-38.456, popup=\"We will be somewhere around here!\")\n\n\n\n\n\n::::{.cr-section} \nHello World\nNarrative with trigger @cr-sticky\n\n:::{#cr-sticky}\n1asfs\n:::\n\n\n::::"
   }
 ]
