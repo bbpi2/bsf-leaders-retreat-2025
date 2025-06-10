@@ -1,0 +1,101 @@
+---
+title: ""
+navbar: false
+format: 
+  closeread-html:
+    resources:
+      - "elevor-music.mp3"
+    theme: cosmo
+    # css: ../../styles.css
+    remove-header-space: true
+    cr-section:
+       layout: "overlay-center"
+    cr-style:
+      section-background-color: white
+      narrative-background-color-overlay: white
+      narrative-overlay-max-width: 700px
+      narrative-text-color-overlay: black
+      narrative-font-family: Times, "Times New Roman", Georgia, serif;
+      narrative-font-size: 1.8em
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+
+# number of storms per year (1980-2022)
+storms_per_year = storms |>
+  filter(year >= 1980) |> 
+  mutate(id = paste0(name, "-", year)) |> 
+  count(year, id, name = "count") |> 
+  count(year, name = "count")
+
+# mean & median number of storms per decade
+storms_per_decade = storms_per_year |>
+  mutate(decade = as.numeric(paste0(str_sub(year, 1, 3), "0"))) |> 
+  group_by(decade) |> 
+  summarize(mean = mean(count),
+            median = median(count),
+            year = which.max(count),
+            max = max(count)) |> 
+  mutate(year = decade + year - 1)
+
+# color palette
+lowcolor = "#dccfb1" # low-light color
+medcolor = "#BD835D" # highlight color per decade
+maxcolor = "#ff9933" # color of maximum
+```
+
+::::{.cr-section}
+
+Welcome to the BSF Leaders' Retreat 2025 🤩
+
+...we have finally booked our location for retreat...
+
+...can you guess where we will be?
+
+<!-- <audio controls src="elevator-music.mp3"></audio> -->
+
+
+I'll give you *three* clues... @cr-null
+
+:::{#cr-null}
+:::
+
+Clue #1 @cr-clue1
+
+:::{#cr-clue1}
+![](cow.gif)
+:::
+
+Clue #2 @cr-clue2
+
+:::{#cr-clue2}
+![](penguin.gif)
+:::
+
+@cr-null
+
+Clue #3: [Acts 8:26](https://www.biblegateway.com/passage/?search=Acts 8%3A26&version=ESV)
+
+...that's right, drumroll please... @cr-drums
+
+:::{#cr-drums}
+![](drum.jpg)
+:::
+
+@cr-null
+
+...we're going to Cowes, Philip Island 🎉
+```{r, echo=FALSE}
+library(leaflet)
+
+leaflet() %>%
+  addTiles() %>%  # Add default OpenStreetMap map tiles
+  setView(145.237, -38.456, zoom=8.5) %>% 
+  addMarkers(lng=145.237, lat=-38.456, popup="We will be somewhere around here!")
+```
+
+...keep your eyes peeled for details 👀🍌
+
+...but in the meanwhile please transfer $70.31 for accommodation (see chat).
+::::
