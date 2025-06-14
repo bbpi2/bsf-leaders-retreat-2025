@@ -1,0 +1,61 @@
+---
+title: "Important Info"
+filters:
+  - shinylive
+---
+
+## (Beta) Fuel Cost Calculator 🧪
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 800
+from shiny import App, render, ui, reactive
+from shinywidgets import render_widget, output_widget
+from ipyleaflet import Map
+import requests
+
+app_ui = ui.page_fluid(
+    ui.input_text("source_address", "Source Address"),
+    # ui.input_numeric("long", "Long", 0),
+    ui.output_text_verbatim("txt"),
+    ui.page_fluid(output_widget("map"))  
+)
+
+def server(input, output, session):
+    @output
+    @render.text
+    def txt():
+        addy = input.source_address().replace(" ", "+")
+        url = f"https://nominatim.openstreetmap.org/search?q={addy}&format=json"
+
+        r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
+        response = r.json()[0]
+        lat = response['lat']
+        lon = response['lon']
+        name = response['display_name']
+        return f"The address has {addy} a lat of {lat} and long of {lon} at {name}"
+
+    @render_widget  
+    def map():
+        return Map(center=(50.6252978589571, 0.34580993652344), zoom=3) 
+
+app = App(app_ui, server)
+```
+
+## Pack List
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`
+
+## Schedule
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+| Time | Activity |
+| --- | --- |
+| 09:00 | Wake |
+
+## The Menu
+ Quartoで日本語も表せる
+$$
+\int_0^\infty x dx \to \infty
+$$
+
+
