@@ -1,44 +1,44 @@
 [
   {
-    "objectID": "index-frame.html",
-    "href": "index-frame.html",
-    "title": "BSF Leaders Retreat 2025",
-    "section": "",
-    "text": "Friday\nSaturday\nSunday"
-  },
-  {
-    "objectID": "index-frame.html#schedule",
-    "href": "index-frame.html#schedule",
-    "title": "BSF Leaders Retreat 2025",
-    "section": "",
-    "text": "Friday\nSaturday\nSunday"
-  },
-  {
-    "objectID": "index-frame.html#menu",
-    "href": "index-frame.html#menu",
-    "title": "BSF Leaders Retreat 2025",
-    "section": "Menu",
-    "text": "Menu\nMeal 1:"
-  },
-  {
-    "objectID": "index-frame.html#to-bring-list",
-    "href": "index-frame.html#to-bring-list",
-    "title": "BSF Leaders Retreat 2025",
-    "section": "To Bring List",
-    "text": "To Bring List\n\nYourself"
-  },
-  {
-    "objectID": "index-frame.html#location",
-    "href": "index-frame.html#location",
-    "title": "BSF Leaders Retreat 2025",
-    "section": "Location",
-    "text": "Location\n\nlibrary(leaflet)\n\nleaflet() %&gt;%\n  addTiles() %&gt;%  # Add default OpenStreetMap map tiles\n  setView(145.237, -38.456, zoom=8) %&gt;% \n  addMarkers(lng=145.237, lat=-38.456, popup=\"We will be somewhere around here!\")\n\n\n\n\n\n::::{.cr-section} \nHello World\nNarrative with trigger @cr-sticky\n\n:::{#cr-sticky}\n1asfs\n:::\n\n\n::::"
-  },
-  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "BSF Retreat 2025",
     "section": "",
     "text": "Welcome to the BSF Leaders’ Retreat 2025 🤩\n\n\n\n\n…we have finally booked our location for retreat…\n\n\n\n\n…can you guess where we will be?\n\n\n\n\n\n\n\n\n\nI’ll give you three clues…\n\n\n\n\nClue #1\n\n\n\n\nClue #2\n\n\n\n\n\n\n\n\n\nClue #3: Acts 8:26\n\n\n\n\n…that’s right, drumroll please…\n\n\n\n\n\n\n\n\n\n…we’re going to Cowes, Philip Island 🎉\n\n\n\n\n\n\n\n\n\n\n\n\n…keep your eyes peeled for details 👀🍌\n\n\n\n\n…but in the meanwhile please transfer $70.31 for accommodation (see chat)."
+  },
+  {
+    "objectID": "experimental.html",
+    "href": "experimental.html",
+    "title": "Important Info",
+    "section": "",
+    "text": "#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 800\nfrom shiny import App, render, ui, reactive\nfrom shinywidgets import render_widget, output_widget\nfrom ipyleaflet import Map\nimport requests\n\napp_ui = ui.page_fluid(\n    ui.input_text(\"source_address\", \"Source Address\"),\n    # ui.input_numeric(\"long\", \"Long\", 0),\n    ui.output_text_verbatim(\"txt\"),\n    ui.page_fluid(output_widget(\"map\"))  \n)\n\ndef server(input, output, session):\n    @output\n    @render.text\n    def txt():\n        addy = input.source_address().replace(\" \", \"+\")\n        url = f\"https://nominatim.openstreetmap.org/search?q={addy}&format=json\"\n\n        r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})\n        response = r.json()[0]\n        lat = response['lat']\n        lon = response['lon']\n        name = response['display_name']\n        return f\"The address has {addy} a lat of {lat} and long of {lon} at {name}\"\n\n    @render_widget  \n    def map():\n        return Map(center=(50.6252978589571, 0.34580993652344), zoom=3) \n\napp = App(app_ui, server)"
+  },
+  {
+    "objectID": "experimental.html#beta-fuel-cost-calculator",
+    "href": "experimental.html#beta-fuel-cost-calculator",
+    "title": "Important Info",
+    "section": "",
+    "text": "#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 800\nfrom shiny import App, render, ui, reactive\nfrom shinywidgets import render_widget, output_widget\nfrom ipyleaflet import Map\nimport requests\n\napp_ui = ui.page_fluid(\n    ui.input_text(\"source_address\", \"Source Address\"),\n    # ui.input_numeric(\"long\", \"Long\", 0),\n    ui.output_text_verbatim(\"txt\"),\n    ui.page_fluid(output_widget(\"map\"))  \n)\n\ndef server(input, output, session):\n    @output\n    @render.text\n    def txt():\n        addy = input.source_address().replace(\" \", \"+\")\n        url = f\"https://nominatim.openstreetmap.org/search?q={addy}&format=json\"\n\n        r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})\n        response = r.json()[0]\n        lat = response['lat']\n        lon = response['lon']\n        name = response['display_name']\n        return f\"The address has {addy} a lat of {lat} and long of {lon} at {name}\"\n\n    @render_widget  \n    def map():\n        return Map(center=(50.6252978589571, 0.34580993652344), zoom=3) \n\napp = App(app_ui, server)"
+  },
+  {
+    "objectID": "experimental.html#pack-list",
+    "href": "experimental.html#pack-list",
+    "title": "Important Info",
+    "section": "Pack List",
+    "text": "Pack List\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`"
+  },
+  {
+    "objectID": "experimental.html#schedule",
+    "href": "experimental.html#schedule",
+    "title": "Important Info",
+    "section": "Schedule",
+    "text": "Schedule\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n\n\n\nTime\nActivity\n\n\n\n\n09:00\nWake"
+  },
+  {
+    "objectID": "experimental.html#the-menu",
+    "href": "experimental.html#the-menu",
+    "title": "Important Info",
+    "section": "The Menu",
+    "text": "The Menu\nQuartoで日本語も表せる \\[\n\\int_0^\\infty x dx \\to \\infty\n\\]"
   }
 ]
