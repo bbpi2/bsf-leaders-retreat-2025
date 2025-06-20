@@ -179,6 +179,7 @@ window.Quarto = {
 
 <section id="beta-fuel-cost-calculator" class="level2">
 <h2 class="anchored" data-anchor-id="beta-fuel-cost-calculator">(Beta) Fuel Cost Calculator 🧪</h2>
+<p>Testing Testing</p>
 <pre class="shinylive-python" data-engine="python"><code>#| '!! shinylive warning !!': |
 #|   shinylive does not work in self-contained HTML documents.
 #|   Please set `embed-resources: false` in your metadata.
@@ -186,7 +187,7 @@ window.Quarto = {
 #| viewerHeight: 800
 from shiny import App, render, ui, reactive
 from shinywidgets import render_widget, output_widget
-from ipyleaflet import Map
+from ipyleaflet import Map, Marker
 import requests
 
 app_ui = ui.page_fluid(
@@ -208,11 +209,26 @@ def server(input, output, session):
         lat = response['lat']
         lon = response['lon']
         name = response['display_name']
-        return f"The address has {addy} a lat of {lat} and long of {lon} at {name}"
+        return f"The address has is {name}: coords {lat}, {lon}"
+
+    @reactive.calc
+    def get_lat_long():
+        addy = input.source_address().replace(" ", "+")
+        url = f"https://nominatim.openstreetmap.org/search?q={addy}&amp;format=json"
+
+        r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
+        response = r.json()[0]
+        lat = response['lat']
+        lon = response['lon']  
+        return (lat, lon)
 
     @render_widget  
     def map():
-        return Map(center=(50.6252978589571, 0.34580993652344), zoom=3) 
+        lat = get_lat_long()[0]
+        lon = get_lat_long()[1]
+        m = Map(center=(lat, lon), zoom=10) 
+        m.add(Marker(location=(lat, lon)))
+        return m
 
 app = App(app_ui, server)</code></pre>
 </section>
