@@ -7,18 +7,53 @@
     "text": "Welcome to the BSF Leaders’ Retreat 2025 🤩\n\n\n\n\n…we have finally booked our location for retreat…\n\n\n\n\n…can you guess where we will be?\n\n\n\n\n\n\n\n\n\nI’ll give you three clues…\n\n\n\n\nClue #1\n\n\n\n\nClue #2\n\n\n\n\n\n\n\n\n\nClue #3: Acts 8:26\n\n\n\n\n…that’s right, drumroll please…\n\n\n\n\n\n\n\n\n\n…we’re going to Cowes, Philip Island 🎉\n\n\n\n\n\n\n\n\n\n\n\n\n…keep your eyes peeled for details 👀🍌\n\n\n\n\n…but in the meanwhile please transfer $70.31 for accommodation (see chat)."
   },
   {
+    "objectID": "info.html",
+    "href": "info.html",
+    "title": "Important Info",
+    "section": "",
+    "text": "This will be the home page for (most) of your retreat information!"
+  },
+  {
+    "objectID": "info.html#schedule",
+    "href": "info.html#schedule",
+    "title": "Important Info",
+    "section": "Schedule",
+    "text": "Schedule\n⚠️ This part is to be confirmed ⚠️\n\n\n\nTime\nActivity\n\n\n\n\nFRIDAY\n\n\n\n09:00\nWake"
+  },
+  {
+    "objectID": "info.html#menu",
+    "href": "info.html#menu",
+    "title": "Important Info",
+    "section": "Menu",
+    "text": "Menu\n⚠️ This part is to be confirmed ⚠️"
+  },
+  {
+    "objectID": "info.html#pack-list",
+    "href": "info.html#pack-list",
+    "title": "Important Info",
+    "section": "Pack List",
+    "text": "Pack List\nIMPORTANT: This accommodation does not include: top & bottom sheets, pillowcases and bath towels. The accommodation does include doona/quilts with covers, pillows without covers, tea towels, hand towels and bathmats.\nEssentials:\n\nBible\nTowels\nPillowcase (or just your own pillow)\nLinen for the bed OR sleeping bag\n\nAlmost Essential:\n\nYour favourite plushie\n\nOptional:\n\nMusical instruments\nGames\nSnacks"
+  },
+  {
+    "objectID": "info.html#beta-fuel-cost-calculator",
+    "href": "info.html#beta-fuel-cost-calculator",
+    "title": "Important Info",
+    "section": "(Beta) Fuel Cost Calculator 🧪",
+    "text": "(Beta) Fuel Cost Calculator 🧪\nThis is a basic calculator to work out how much to split for fuel assuming conservative values of:\n\n10.0L/ 100 km (see here).\nFuel cost of $2.5/ L.\n\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 400\nfrom shiny import App, render, ui, reactive\nfrom shinywidgets import render_widget, output_widget\n\napp_ui = ui.page_fluid(\n    ui.input_slider(\"n_pax\", \"Number of People in the Car:\", \n        min=2, max=6, value=2),\n    ui.input_numeric(\"length\", \"How long is your drive in km (return)?\", 0),\n    ui.output_text_verbatim(\"show_output\")\n)\n\n\ndef server(input, output, session): \n    @output \n    @render.text\n    def show_output():\n        n_pax = input.n_pax()\n        length = input.length()\n        output = round((length * 0.1*2.5)/n_pax, 2)\n        return f'The cost per person in the car is ${output}'\n\napp = App(app_ui, server)"
+  },
+  {
     "objectID": "experimental.html",
     "href": "experimental.html",
     "title": "Important Info",
     "section": "",
-    "text": "Testing Testing\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 800\nfrom shiny import App, render, ui, reactive\nfrom shinywidgets import render_widget, output_widget\nfrom ipyleaflet import Map, Marker\nimport requests\n\napp_ui = ui.page_fluid(\n    ui.input_text(\"source_address\", \"Source Address\"),\n    # ui.input_numeric(\"long\", \"Long\", 0),\n    ui.output_text_verbatim(\"txt\"),\n    ui.page_fluid(output_widget(\"map\"))  \n)\n\ndef server(input, output, session):\n    @output\n    @render.text\n    def txt():\n        addy = input.source_address().replace(\" \", \"+\")\n        url = f\"https://nominatim.openstreetmap.org/search?q={addy}&format=json\"\n\n        r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})\n        response = r.json()[0]\n        lat = response['lat']\n        lon = response['lon']\n        name = response['display_name']\n        return f\"The address has is {name}: coords {lat}, {lon}\"\n\n    @reactive.calc\n    def get_lat_long():\n        addy = input.source_address().replace(\" \", \"+\")\n        url = f\"https://nominatim.openstreetmap.org/search?q={addy}&format=json\"\n\n        r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})\n        response = r.json()[0]\n        lat = response['lat']\n        lon = response['lon']  \n        return (lat, lon)\n\n    @render_widget  \n    def map():\n        lat = get_lat_long()[0]\n        lon = get_lat_long()[1]\n        m = Map(center=(lat, lon), zoom=10) \n        m.add(Marker(location=(lat, lon)))\n        return m\n\napp = App(app_ui, server)"
+    "text": "Testing Testing"
   },
   {
     "objectID": "experimental.html#beta-fuel-cost-calculator",
     "href": "experimental.html#beta-fuel-cost-calculator",
     "title": "Important Info",
     "section": "",
-    "text": "Testing Testing\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 800\nfrom shiny import App, render, ui, reactive\nfrom shinywidgets import render_widget, output_widget\nfrom ipyleaflet import Map, Marker\nimport requests\n\napp_ui = ui.page_fluid(\n    ui.input_text(\"source_address\", \"Source Address\"),\n    # ui.input_numeric(\"long\", \"Long\", 0),\n    ui.output_text_verbatim(\"txt\"),\n    ui.page_fluid(output_widget(\"map\"))  \n)\n\ndef server(input, output, session):\n    @output\n    @render.text\n    def txt():\n        addy = input.source_address().replace(\" \", \"+\")\n        url = f\"https://nominatim.openstreetmap.org/search?q={addy}&format=json\"\n\n        r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})\n        response = r.json()[0]\n        lat = response['lat']\n        lon = response['lon']\n        name = response['display_name']\n        return f\"The address has is {name}: coords {lat}, {lon}\"\n\n    @reactive.calc\n    def get_lat_long():\n        addy = input.source_address().replace(\" \", \"+\")\n        url = f\"https://nominatim.openstreetmap.org/search?q={addy}&format=json\"\n\n        r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})\n        response = r.json()[0]\n        lat = response['lat']\n        lon = response['lon']  \n        return (lat, lon)\n\n    @render_widget  \n    def map():\n        lat = get_lat_long()[0]\n        lon = get_lat_long()[1]\n        m = Map(center=(lat, lon), zoom=10) \n        m.add(Marker(location=(lat, lon)))\n        return m\n\napp = App(app_ui, server)"
+    "text": "Testing Testing"
   },
   {
     "objectID": "experimental.html#pack-list",

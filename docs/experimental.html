@@ -128,8 +128,8 @@ window.Quarto = {
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./experimental.html" aria-current="page"> 
-<span class="menu-text">Important Info</span></a>
+    <a class="nav-link" href="./info.html"> 
+<span class="menu-text">Key Information</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -149,9 +149,13 @@ window.Quarto = {
    
   <ul>
   <li><a href="#beta-fuel-cost-calculator" id="toc-beta-fuel-cost-calculator" class="nav-link active" data-scroll-target="#beta-fuel-cost-calculator">(Beta) Fuel Cost Calculator 🧪</a></li>
+  <li><a href="#app_def3ap093fje6i66n1le" id="toc-app_def3ap093fje6i66n1le" class="nav-link" data-scroll-target="#app_def3ap093fje6i66n1le">app_def3ap093fje6i66n1le</a></li>
+  <li><a href="#app_n9msw565z23uojnx97kd" id="toc-app_n9msw565z23uojnx97kd" class="nav-link" data-scroll-target="#app_n9msw565z23uojnx97kd">app_n9msw565z23uojnx97kd</a>
+  <ul class="collapse">
   <li><a href="#pack-list" id="toc-pack-list" class="nav-link" data-scroll-target="#pack-list">Pack List</a></li>
   <li><a href="#schedule" id="toc-schedule" class="nav-link" data-scroll-target="#schedule">Schedule</a></li>
   <li><a href="#the-menu" id="toc-the-menu" class="nav-link" data-scroll-target="#the-menu">The Menu</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -180,24 +184,75 @@ window.Quarto = {
 <section id="beta-fuel-cost-calculator" class="level2">
 <h2 class="anchored" data-anchor-id="beta-fuel-cost-calculator">(Beta) Fuel Cost Calculator 🧪</h2>
 <p>Testing Testing</p>
+</section>
+<section id="app_def3ap093fje6i66n1le" class="level1">
+<h1>app_def3ap093fje6i66n1le</h1>
+</section>
+<section id="app_n9msw565z23uojnx97kd" class="level1">
+<h1>app_n9msw565z23uojnx97kd</h1>
+<!-- /How do I load a json within Shinylive-python? -->
+<p>APRIL</p>
+<!-- ```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 800
+
+import asyncio
+import js
+import json
+
+async def fetch_json(url):
+    # Use the JavaScript fetch API to get the response
+    response = await js.fetch(url)
+    
+    # Check for HTTP errors; response.ok is true if the status is 200-299
+    if not response.ok:
+        raise Exception(f"HTTP error: {response.status}")
+    
+    # Retrieve the text of the response.
+    text = await response.text()
+    
+    # Parse the text into a Python dictionary.
+    return json.loads(text)
+
+async def main():
+    print("MAIN FUNC")
+    try:
+        data = await fetch_json("https://github.com/bbpi2/bsf-leaders-retreat-2025/blob/main/data/metro_vic.json")
+        print("Fetched data:", data)
+    except Exception as e:
+        print("Error fetching data:", e)
+
+# In Shinylive, the event loop is already running.
+# Schedule your asynchronous task using asyncio.create_task().
+print("OUTSIDE FUNCT")
+asyncio.create_task(main())
+
+``` -->
 <pre class="shinylive-python" data-engine="python"><code>#| '!! shinylive warning !!': |
 #|   shinylive does not work in self-contained HTML documents.
 #|   Please set `embed-resources: false` in your metadata.
 #| standalone: true
 #| viewerHeight: 800
+
 from shiny import App, render, ui, reactive
 from shinywidgets import render_widget, output_widget
-from ipyleaflet import Map, Marker
+from ipyleaflet import Map, Marker, GeoJSON
 import requests
+import pandas as pd 
+import pyodide_http
+import js
+import json
+import asyncio
 
 app_ui = ui.page_fluid(
+    ui.output_text_verbatim("test"),    
     ui.input_text("source_address", "Source Address"),
     # ui.input_numeric("long", "Long", 0),
     ui.output_text_verbatim("txt"),
     ui.page_fluid(output_widget("map"))  
 )
 
-def server(input, output, session):
+def server(input, output, session):    
     @output
     @render.text
     def txt():
@@ -209,7 +264,9 @@ def server(input, output, session):
         lat = response['lat']
         lon = response['lon']
         name = response['display_name']
-        return f"The address has is {name}: coords {lat}, {lon}"
+        # my_secret = ${DATABASE_SERVER}
+        return f"THE SECRET {appdir} The aaddress has is {name}: coords {lat}, {lon}"
+
 
     @reactive.calc
     def get_lat_long():
@@ -224,14 +281,46 @@ def server(input, output, session):
 
     @render_widget  
     def map():
+        # data = js.window.jsonData.to_py()
         lat = get_lat_long()[0]
         lon = get_lat_long()[1]
-        m = Map(center=(lat, lon), zoom=10) 
+        m = Map(center=(lat, lon), zoom=10)
+        geo_layer = GeoJSON(
+            data=data
+        )
         m.add(Marker(location=(lat, lon)))
+        m.add(geo_layer)
         return m
 
-app = App(app_ui, server)</code></pre>
-</section>
+app = App(app_ui, server)
+
+
+async def fetch_json(url):
+    # Use the JavaScript fetch API to get the response
+    response = await js.fetch(url)
+    
+    # Check for HTTP errors; response.ok is true if the status is 200-299
+    if not response.ok:
+        raise Exception(f"HTTP error: {response.status}")
+    
+    # Retrieve the text of the response.
+    text = await response.text()
+    
+    # Parse the text into a Python dictionary.
+    return json.loads(text)
+
+async def main():
+    print("MAIN FUNC")
+    try:
+        data = await fetch_json("https://github.com/bbpi2/bsf-leaders-retreat-2025/blob/main/data/metro_vic.json")
+        print("Fetched data:", data)
+    except Exception as e:
+        print("Error fetching data:", e)
+
+# In Shinylive, the event loop is already running.
+# Schedule your asynchronous task using asyncio.create_task().
+print("OUTSIDE FUNCT")
+asyncio.create_task(main())</code></pre>
 <section id="pack-list" class="level2">
 <h2 class="anchored" data-anchor-id="pack-list">Pack List</h2>
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`</p>
@@ -261,6 +350,7 @@ app = App(app_ui, server)</code></pre>
 \]</span></p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
