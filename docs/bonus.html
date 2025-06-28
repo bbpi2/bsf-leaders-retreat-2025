@@ -131,6 +131,10 @@ window.Quarto = {
     <a class="nav-link" href="./info.html"> 
 <span class="menu-text">Key Information</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./bonus.html" aria-current="page"> 
+<span class="menu-text">⭐ Bonus ⭐</span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -148,10 +152,16 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#beta-fuel-cost-calculator" id="toc-beta-fuel-cost-calculator" class="nav-link active" data-scroll-target="#beta-fuel-cost-calculator">(Beta) Fuel Cost Calculator 🧪</a></li>
-  <li><a href="#pack-list" id="toc-pack-list" class="nav-link" data-scroll-target="#pack-list">Pack List</a></li>
-  <li><a href="#schedule" id="toc-schedule" class="nav-link" data-scroll-target="#schedule">Schedule</a></li>
-  <li><a href="#the-menu" id="toc-the-menu" class="nav-link" data-scroll-target="#the-menu">The Menu</a></li>
+  <li><a href="#beta-fuel-cost-calculator" id="toc-beta-fuel-cost-calculator" class="nav-link active" data-scroll-target="#beta-fuel-cost-calculator">(Beta) Fuel Cost Calculator 🧪</a>
+  <ul class="collapse">
+  <li><a href="#all-the-nerdy-details" id="toc-all-the-nerdy-details" class="nav-link" data-scroll-target="#all-the-nerdy-details">All the Nerdy Details</a>
+  <ul class="collapse">
+  <li><a href="#whats-the-difference-between-direct-distance-road-distance" id="toc-whats-the-difference-between-direct-distance-road-distance" class="nav-link" data-scroll-target="#whats-the-difference-between-direct-distance-road-distance">What’s the difference between Direct Distance &amp; Road Distance?</a></li>
+  <li><a href="#why-are-we-approximating-road-distance" id="toc-why-are-we-approximating-road-distance" class="nav-link" data-scroll-target="#why-are-we-approximating-road-distance">Why are we approximating Road Distance?</a></li>
+  <li><a href="#what-is-the-approximation-being-used" id="toc-what-is-the-approximation-being-used" class="nav-link" data-scroll-target="#what-is-the-approximation-being-used">What is the approximation being used?</a></li>
+  <li><a href="#what-assumptions-are-made-when-calculating-the-fuel-cost" id="toc-what-assumptions-are-made-when-calculating-the-fuel-cost" class="nav-link" data-scroll-target="#what-assumptions-are-made-when-calculating-the-fuel-cost">What assumptions are made when calculating the fuel cost?</a></li>
+  </ul></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -177,14 +187,42 @@ window.Quarto = {
 </header>
 
 
-<section id="beta-fuel-cost-calculator" class="level2">
-<h2 class="anchored" data-anchor-id="beta-fuel-cost-calculator">(Beta) Fuel Cost Calculator 🧪</h2>
-<p>This is an <em>experimental</em> tool to calculate the fuel costs per-passenger. The results are <em>approximations</em> made using certain assumptions (see Methodology section). If the “By Address” tool doesn’t work, you can try using the “By Distance” tool after searching up your route on <a href="https://www.google.com/maps">Google Maps</a>.</p>
+<section id="beta-fuel-cost-calculator" class="level1">
+<h1>(Beta) Fuel Cost Calculator 🧪</h1>
+<div class="callout callout-style-default callout-important callout-titled" title="Important Disclaimer">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important Disclaimer
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Calculations are only <strong>estimates</strong> since it makes many many approximations.</li>
+<li>If it can’t find a <strong>road distance</strong> the estimates could be wildly incorrect.</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For a more accurate estimate, search your route on <a href="https://www.google.com/maps">Google Maps</a> and enter the distance in the “By Distance” tab.</p>
+</div>
+</div>
 <pre class="shinylive-python" data-engine="python"><code>#| '!! shinylive warning !!': |
 #|   shinylive does not work in self-contained HTML documents.
 #|   Please set `embed-resources: false` in your metadata.
 #| standalone: true
-#| viewerHeight: 800
+#| viewerHeight: 1000
 
 from shiny import App, ui, render, reactive
 from shinywidgets import render_widget, output_widget
@@ -218,6 +256,12 @@ def great_circle_distance(lat1, lon1, lat2, lon2):
 
     return R * c  # Distance in kilometers
 
+def dist_to_str(dist):
+  return str(round(dist, 2)) + " km"
+
+def cost_to_str(cost):
+  return "$" + str(round(cost,2))
+
 app_ui = ui.page_fluid(
   ui.navset_card_tab(
     ui.nav_panel("By Address", 
@@ -229,9 +273,14 @@ app_ui = ui.page_fluid(
       ui.output_text("confirmation"),
       ui.output_table("table_output"),
       # ui.output_text("geocoder"),
-      ui.page_fluid(output_widget("map")),),
+      ui.page_fluid(output_widget("map")),
+    ),  
     ui.nav_panel("By Distance", 
       ui.br(),
+      ui.input_numeric("length", "How long is your drive in km (one way)?", 0),
+      ui.input_slider("n_pax_d", "Number of People in the Car:", min=2, max=6, value=2, ticks=True),
+      ui.input_task_button("search_d", "Search"),
+      ui.output_table("table_output_d")
     )
   )
 )
@@ -298,42 +347,29 @@ def server(input, output, session):
     def table_output():
       geocode = parse_geocode()
       suburb = geocode['suburb']
-      pprint_dist = lambda dist: str(round(dist, 2)) + " km"
+      # pprint_dist = lambda dist: str(round(dist, 2)) + " km"
 
       gc_dist = geocode['gc_dist']
-      gc_dist_str = pprint_dist(gc_dist)
+      gc_dist_str = dist_to_str(gc_dist)
       road_dist = get_road_dist(suburb)
       if road_dist &lt; 0:
         road_dist_str = "Unable to calculate road distance, using direct distance instead."
         dist = gc_dist
       else:
-        road_dist_str = pprint_dist(road_dist)
+        road_dist_str = dist_to_str(road_dist)
         dist = road_dist
 
       # assuming 10 L/100km &amp; $2.5/L fuel for return
       cost_ppax = dist * 0.1*2.5 / input.n_pax() * 2
-      cost_ppax_str = "$" + str(round(cost_ppax,2))
+      cost_ppax_str = cost_to_str(cost_ppax) #"$" + str(round(cost_ppax,2))
 
       output = []
       output.append({"Item": "Suburb", "Value": suburb})
-      output.append({"Item": "Approximate Road Distance", "Value": road_dist_str})
-      output.append({"Item": "Direct Distance", "Value": gc_dist_str})
+      output.append({"Item": "Approximate Road Distance (one way)", "Value": road_dist_str})
+      output.append({"Item": "Direct Distance (one way)", "Value": gc_dist_str})
       output.append({"Item": "Fuel Cost for Return/pax", "Value": cost_ppax_str})
       
       return pd.DataFrame(output)
-
-
-    # @render.text()
-    # def geocoder():
-    #   response = calc_geocode()
-    #   name = response['display_name']
-    #   address = response['address']
-    #   if address.get('suburb') is not None:
-    #     suburb = address['suburb']
-    #     suburb_str = f"and the suburb you have entered is {suburb}"
-    #   else:
-    #     suburb_str = f"and suburb is unavailable."
-    #   return f'The address you have inputted is: {name} {suburb_str}'
  
     @render_widget  
     def map():
@@ -354,6 +390,19 @@ def server(input, output, session):
         # m.add(geo_layer)
         return m
 
+    @output
+    @render.table
+    @reactive.event(input.search_d)
+    def table_output_d():
+      n_pax = input.n_pax()
+      length = input.length()
+      cost_ppax = length * 0.1*2.5/n_pax
+
+      output = []
+      output.append({"Item": "Distance (one way)", "Value": dist_to_str(length)})
+      output.append({"Item": "Fuel Cost for Return/pax", "Value": cost_to_str(cost_ppax)})
+      return pd.DataFrame(output)
+
     # @render.table
     # def table_output():
     #   output = []
@@ -373,126 +422,86 @@ def server(input, output, session):
 
 app = App(app_ui, server)
 </code></pre>
-<!-- 
-```rhexlkxlfefjakfdny
-#| standalone: true
-#| viewerHeight: 800
-
-from shiny import App, render, ui, reactive
-from shinywidgets import render_widget, output_widget
-from ipyleaflet import Map, Marker, GeoJSON
-import requests
-import pandas as pd 
-import pyodide_http
-import js
-import json
-from pyodide.http import open_url
-
-app_ui = ui.page_fluid(
-    ui.output_text_verbatim("test"),    
-    ui.input_text("source_address", "Source Address"),
-    # ui.input_numeric("long", "Long", 0),
-    ui.output_text_verbatim("txt"),
-    ui.page_fluid(output_widget("map"))  
-)
-
-def server(input, output, session):    
-    @output
-    @render.text
-    def txt():
-        # addy = input.source_address().replace(" ", "+")
-        # url = f"https://nominatim.openstreetmap.org/search?q={addy}&format=json"
-
-        # r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
-        # response = r.json()[0]
-
-        print("BEFORE")
-        df = pd.read_csv(open_url('/data/metro_vic_suburbs.csv'))
-        # df = pd.read_csv(open_url('https://github.com/bbpi2/bsf-leaders-retreat-2025/blob/main/data/metro_vic_suburbs.csv'))
-        print(df)
-        print("AFTER")
-        # print(head(df))
-
-        # lat = response['lat']
-        # lon = response['lon']
-        # name = response['display_name']
-        # my_secret = ${DATABASE_SERVER}
-        # return f"THE SECRET  The aaddress has is {name}: coords {lat}, {lon}"
-        return 'hello'
-
-
-    @reactive.calc
-    def get_lat_long():
-        addy = input.source_address().replace(" ", "+")
-        url = f"https://nominatim.openstreetmap.org/search?q={addy}&format=json"
-
-        r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
-        response = r.json()[0]
-        lat = response['lat']
-        lon = response['lon']  
-        return (lat, lon)
-
-    @render_widget  
-    def map():
-        # data = js.window.jsonData.to_py()
-        lat = get_lat_long()[0]
-        lon = get_lat_long()[1]
-        m = Map(center=(lat, lon), zoom=10)
-        geo_layer = GeoJSON(
-            data=data
-        )
-        m.add(Marker(location=(lat, lon)))
-        m.add(geo_layer)
-        return m
-
-app = App(app_ui, server)
-
-# async def fetch_url(url: str, type: str = "string"):
-
-#     response = await pyodide.http.pyfetch(url)
-
-#     if type == "json":
-#         # .json() parses the response as JSON and converts to dictionary.
-#         return await response.json()
-#     elif type == "string":
-#         # .string() returns the response as a string.
-#         return await response.string()
-#     elif type == "bytes":
-#         # .bytes() returns the response as a byte object.
-#         return await response.bytes()
-#     else:
-#         return None -->
-<!-- ``` -->
+<section id="all-the-nerdy-details" class="level2">
+<h2 class="anchored" data-anchor-id="all-the-nerdy-details">All the Nerdy Details</h2>
+<ul>
+<li>Source location = where you are coming from.</li>
+<li>Destination location = where you are going (in this case it’s set to Cowes Phillip Island)</li>
+</ul>
+<section id="whats-the-difference-between-direct-distance-road-distance" class="level3">
+<h3 class="anchored" data-anchor-id="whats-the-difference-between-direct-distance-road-distance">What’s the difference between Direct Distance &amp; Road Distance?</h3>
+<ul>
+<li>The Direct Distance is equivalent to the <a href="https://en.wikipedia.org/wiki/Great-circle_distance">Great Circle Distance</a> and measures out the length (in km) “as the crow flies” which is the shortest distance between two points on a sphere. This is done by taking the latitude &amp; longitude of two the locations and computing the <a href="https://en.wikipedia.org/wiki/Haversine_formula">Haversine formula</a>.</li>
+<li>The Road Distance takes into account the roads required to arrive at the destination. This requires sophisticated graph solving algorithms which is often not worth building yourself. By far this is the more accurate measure.</li>
+</ul>
+<p>We will use an <u>approximation</u> of Road Distance by default - if this cannot be found, then it fallsback to using Direct Distance.</p>
 </section>
-<section id="pack-list" class="level2">
-<h2 class="anchored" data-anchor-id="pack-list">Pack List</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`</p>
+<section id="why-are-we-approximating-road-distance" class="level3">
+<h3 class="anchored" data-anchor-id="why-are-we-approximating-road-distance">Why are we approximating Road Distance?</h3>
+<p>Calculating the Road Distance requires sophisticate graph solving algorithms and can be grouped in the class of <a href="https://en.wikipedia.org/wiki/Shortest_path_problem">shortest path problem</a> (eg. Dijkstra’s algorithm). It is not a great idea to write a custom solver because:</p>
+<ul>
+<li>The tool runs almost entirely on the client-side web browser. It is a terrible idea to try to implement graph solving algorithms on web browsers.</li>
+<li>The effort of writing one up from scratch is useful only insofar as it provides pedogogical value. It just doesn’t make sense since these tools are already readily available as APIs.</li>
+</ul>
+<p>So if there are APIs available, why can’t we use it for this tool? Let’s consider the two main options:</p>
+<ul>
+<li><strong>Google Maps</strong> - this arguable the ‘best’ way to get routing information, but the API is not free.</li>
+<li><a href="https://openrouteservice.org/"><strong>Open Route Service</strong></a> - this is technically free, but has API limits, which require the user to provide an API key.</li>
+</ul>
+<p>Since this tool is built using <a href="https://shiny.posit.co/py/get-started/shinylive.html">shinylive</a>, all of its ‘servers’ are client-facing. The client browser is where the backend is run afterall. However, the downside to this is there is no real way to hide API secret keys, since to use the key we will have to eventually expose the secret to the end-user.</p>
 </section>
-<section id="schedule" class="level2">
-<h2 class="anchored" data-anchor-id="schedule">Schedule</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Time</th>
-<th>Activity</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>09:00</td>
-<td>Wake</td>
-</tr>
-</tbody>
-</table>
+<section id="what-is-the-approximation-being-used" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-the-approximation-being-used">What is the approximation being used?</h3>
+<p>We are unable to dynamically calculate the route according to user-input of source location because of API restrictions. However, since the destination location is already fixed, we can calculate a set of distances from a list of suburbs. This will be useful in providing the approximation.</p>
+<section id="how-do-we-do-this-practically" class="level4">
+<h4 class="anchored" data-anchor-id="how-do-we-do-this-practically">How do we do this practically?</h4>
+<ol type="1">
+<li>Obtain a list of Victorian suburbs and postcodes - <a href="https://www.matthewproctor.com/australian_postcodes#downloadlinks">Matthew Proctor</a> has a great database of this!</li>
+<li>Clean up suburbs dataset - we only really need to keep the metropolitan area subset for our usecase, so we filter by <a href="https://www.abs.gov.au/ausstats/abs@.nsf/Lookup/by%20Subject/1270.0.55.001~July%202016~Main%20Features~Statistical%20Area%20Level%204%20(SA4)~10016">SA4</a>. This ends up being about 800 entries.</li>
+<li>Geocode each suburb to a latitutde &amp; longitude using <a href="https://nominatim.org/">Nominatim</a>.</li>
+<li>For each suburb, use <a href="https://openrouteservice.org/">Open Route Service</a> to calculate the road distance (only about 20 of them failed).</li>
+</ol>
+<p>Now we have a list of suburbs with reference road distances - how do we use this information?</p>
 </section>
-<section id="the-menu" class="level2">
-<h2 class="anchored" data-anchor-id="the-menu">The Menu</h2>
-<p>Quartoで日本語も表せる <span class="math display">\[
-\int_0^\infty x dx \to \infty
-\]</span></p>
+<section id="method-1-the-matched-suburb-currently-applied" class="level4">
+<h4 class="anchored" data-anchor-id="method-1-the-matched-suburb-currently-applied">Method 1: The Matched Suburb (Currently Applied)</h4>
+<p>This is by far the simplest, but least accurate way. From the user-input, we find the suburb of the source location:</p>
+<ul>
+<li>If a suburb is found, then we impute the road distance from the reference set.</li>
+<li>If a suburb is not found, we give up on calculating the road distance.</li>
+</ul>
+</section>
+<section id="method-2-the-closest-surburb" class="level4">
+<h4 class="anchored" data-anchor-id="method-2-the-closest-surburb">Method 2: The Closest Surburb</h4>
+<p>The obvious flaw with the above method is your location may be in a suburb, but you might actually be closer to another suburb’s centroid! We can adjust the methodology:</p>
+<ol type="1">
+<li>Calculate the direct distance between the source location &amp; each suburb.</li>
+<li>Choose the suburb that is the closest to the source location and use that to impute the road distance value.</li>
+</ol>
+<p>The tricky thing with this method is the computation is <span class="math inline">\(\mathcal{O}(n)\)</span> according to the complexity of the reference set. This may be fine since we have a short list, but client-side only processing may be a limiting factor.</p>
+</section>
+<section id="method-3-the-shortest-distance" class="level4">
+<h4 class="anchored" data-anchor-id="method-3-the-shortest-distance">Method 3: The Shortest Distance</h4>
+<p>The above method can be flawed as well, since the reference suburb you choose may actually be <em>further</em> away from your destination that the source location. The adjusted methodology is:</p>
+<ol type="1">
+<li>Calculate the direct distance between the source location &amp; each suburb: <span class="math inline">\(d_{gc}\)</span></li>
+<li>Find the suburb that minimises the sum of <span class="math inline">\(d_{gc}\)</span> and the road distance in the reference dataset <span class="math inline">\(d_{road}\)</span></li>
+<li>The approximate road distance is precisely this sum.</li>
+</ol>
+<p>The benefit of this method is that it will favour an imputed road distance of a suburb that may be <em>further</em> from the source, but actually on the way to the destination. This method is computationally equivalent to Method 2.</p>
+</section>
+</section>
+<section id="what-assumptions-are-made-when-calculating-the-fuel-cost" class="level3">
+<h3 class="anchored" data-anchor-id="what-assumptions-are-made-when-calculating-the-fuel-cost">What assumptions are made when calculating the fuel cost?</h3>
+<ul>
+<li>Using approximate road distance where possible.</li>
+<li>The average fuel efficiency is <a href="https://www.carsguide.com.au/car-advice/what-is-average-fuel-consumption-88469">assumed</a> to be 10L per 100km.</li>
+<li>The cost of fuel is assumed to be $2.5/L.</li>
+</ul>
 
 
+</section>
+</section>
 </section>
 
 </main> <!-- /main -->

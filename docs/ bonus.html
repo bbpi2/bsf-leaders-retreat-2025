@@ -131,6 +131,10 @@ window.Quarto = {
     <a class="nav-link" href="./info.html"> 
 <span class="menu-text">Key Information</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./bonus.qmd"> 
+<span class="menu-text">⭐ Bonus ⭐</span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -230,6 +234,7 @@ app_ui = ui.page_fluid(
       ui.output_table("table_output"),
       # ui.output_text("geocoder"),
       ui.page_fluid(output_widget("map")),),
+      
     ui.nav_panel("By Distance", 
       ui.br(),
     )
@@ -374,7 +379,7 @@ def server(input, output, session):
 app = App(app_ui, server)
 </code></pre>
 <!-- 
-```rhexlkxlfefjakfdny
+```jetzueqevgkrfnuaos
 #| standalone: true
 #| viewerHeight: 800
 

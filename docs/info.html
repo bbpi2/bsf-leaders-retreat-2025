@@ -41,11 +41,6 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap-d233fc090fc5678fa7650913c8a18ff5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
 <link href="site_libs/bootstrap/bootstrap-dark-c8f9cc090fa4dd1946dc238221ef5781.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<meta name="shinylive:serviceworker_dir" content=".">
-<script src="site_libs/quarto-contrib/shinylive-0.10.4/shinylive/load-shinylive-sw.js" type="module"></script>
-<script src="site_libs/quarto-contrib/shinylive-0.10.4/shinylive/run-python-blocks.js" type="module"></script>
-<link href="site_libs/quarto-contrib/shinylive-0.10.4/shinylive/shinylive.css" rel="stylesheet">
-<link href="site_libs/quarto-contrib/shinylive-quarto-css/shinylive-quarto.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -102,6 +97,10 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link active" href="./info.html" aria-current="page"> 
 <span class="menu-text">Key Information</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./bonus.html"> 
+<span class="menu-text">⭐ Bonus ⭐</span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -122,7 +121,6 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#schedule" id="toc-schedule" class="nav-link active" data-scroll-target="#schedule">Schedule</a></li>
   <li><a href="#menu" id="toc-menu" class="nav-link" data-scroll-target="#menu">Menu</a></li>
   <li><a href="#pack-list" id="toc-pack-list" class="nav-link" data-scroll-target="#pack-list">Pack List</a></li>
-  <li><a href="#beta-fuel-cost-calculator" id="toc-beta-fuel-cost-calculator" class="nav-link" data-scroll-target="#beta-fuel-cost-calculator">(Beta) Fuel Cost Calculator 🧪</a></li>
   </ul>
 </nav>
     </div>
@@ -143,7 +141,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">June 22, 2025</p>
+      <p class="date-modified">June 28, 2025</p>
     </div>
   </div>
     
@@ -201,40 +199,6 @@ ul.task-list li input[type="checkbox"] {
 <li><label><input type="checkbox">Games</label></li>
 <li><label><input type="checkbox">Snacks</label></li>
 </ul>
-</section>
-<section id="beta-fuel-cost-calculator" class="level2">
-<h2 class="anchored" data-anchor-id="beta-fuel-cost-calculator">(Beta) Fuel Cost Calculator 🧪</h2>
-<p>This is a basic calculator to work out how much to split for fuel assuming conservative values of:</p>
-<ul>
-<li>10.0L/ 100 km (see <a href="https://www.carsguide.com.au/car-advice/what-is-average-fuel-consumption-88469">here</a>).</li>
-<li>Fuel cost of $2.5/ L.</li>
-</ul>
-<pre class="shinylive-python" data-engine="python"><code>#| '!! shinylive warning !!': |
-#|   shinylive does not work in self-contained HTML documents.
-#|   Please set `embed-resources: false` in your metadata.
-#| standalone: true
-#| viewerHeight: 400
-from shiny import App, render, ui, reactive
-from shinywidgets import render_widget, output_widget
-
-app_ui = ui.page_fluid(
-    ui.input_slider("n_pax", "Number of People in the Car:", 
-        min=2, max=6, value=2),
-    ui.input_numeric("length", "How long is your drive in km (return)?", 0),
-    ui.output_text_verbatim("show_output")
-)
-
-
-def server(input, output, session): 
-    @output 
-    @render.text
-    def show_output():
-        n_pax = input.n_pax()
-        length = input.length()
-        output = round((length * 0.1*2.5)/n_pax, 2)
-        return f'The cost per person in the car is ${output}'
-
-app = App(app_ui, server)</code></pre>
 
 
 </section>
