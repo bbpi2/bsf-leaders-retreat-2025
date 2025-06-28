@@ -1,0 +1,30 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "BSF Retreat 2025"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: info.qmd
+        text: Key Information
+      - href: bonus.qmd
+        text: ⭐ Bonus ⭐
+
+format:
+  html:
+    theme: 
+      light:
+        - cosmo
+        - style.scss
+      dark:
+        - superhero
+        - style.scss
+    mainfont: "EB Garamond, Georgia, serif"
+    # css: styles.css
+    toc: true
+
+
+
