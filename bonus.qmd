@@ -195,7 +195,7 @@ def server(input, output, session):
     def table_output_d():
       n_pax = input.n_pax()
       length = input.length()
-      cost_ppax = length * 0.1*2.5/n_pax
+      cost_ppax = length * 0.1*2.5/n_pax * 2
 
       output = []
       output.append({"Item": "Distance (one way)", "Value": dist_to_str(length)})
