@@ -235,7 +235,7 @@ import requests
 DEST_LAT = -38.45956579986424
 DEST_LON = 145.2472955709111
 
-dist_heuristics = pd.read_csv(open_url('/data/metro_vic_suburbs.csv'))
+dist_heuristics = pd.read_csv(open_url('https://raw.githubusercontent.com/bbpi2/bsf-leaders-retreat-2025/refs/heads/main/data/metro_vic_suburbs.csv'))
 
 # Haversine formula copied straight from GenAI
 def great_circle_distance(lat1, lon1, lat2, lon2):
