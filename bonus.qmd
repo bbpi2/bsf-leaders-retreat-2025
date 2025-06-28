@@ -1,0 +1,356 @@
+---
+title: "⭐ Bonus ⭐"
+filters:
+  - shinylive
+resources:
+  - data/metro_vic_suburbs.csv
+---
+
+# (Beta) Fuel Cost Calculator 🧪
+
+This is an *experimental* tool to calculate the fuel costs per-passenger. 
+
+* The results are *approximations* made using certain assumptions (see Methodology section). 
+* Where possible it will use the road distance over the direct distance.
+* If the "By Address" tool doesn't work, you can try using the "By Distance" tool after searching up your route on [Google Maps](https://www.google.com/maps).
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 1000
+
+from shiny import App, ui, render, reactive
+from shinywidgets import render_widget, output_widget
+from ipyleaflet import Map, Marker
+from math import radians, sin, cos, sqrt, atan2
+from pyodide.http import open_url
+import pandas as pd
+import requests
+
+DEST_LAT = -38.45956579986424
+DEST_LON = 145.2472955709111
+
+dist_heuristics = pd.read_csv(open_url('/data/metro_vic_suburbs.csv'))
+
+# Haversine formula copied straight from GenAI
+def great_circle_distance(lat1, lon1, lat2, lon2):
+    # Radius of Earth in kilometers. Use 3956 for miles
+    R = 6371.0
+
+    # Convert degrees to radians
+    φ1, λ1 = radians(lat1), radians(lon1)
+    φ2, λ2 = radians(lat2), radians(lon2)
+
+    # Differences
+    dφ = φ2 - φ1
+    dλ = λ2 - λ1
+
+    # Haversine formula
+    a = sin(dφ / 2)**2 + cos(φ1) * cos(φ2) * sin(dλ / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    return R * c  # Distance in kilometers
+
+def dist_to_str(dist):
+  return str(round(dist, 2)) + " km"
+
+def cost_to_str(cost):
+  return "$" + str(round(cost,2))
+
+app_ui = ui.page_fluid(
+  ui.navset_card_tab(
+    ui.nav_panel("By Address", 
+      ui.br(),
+      ui.input_text("source_address", "Where are you coming from?", value = "Monash City Church of Christ", width = '200%'),
+      ui.input_slider("n_pax", "Number of People in the Car:", min=2, max=6, value=2, ticks=True), 
+      ui.input_task_button("search", "Search"),
+      # ui.output_text("debugger"),
+      ui.output_text("confirmation"),
+      ui.output_table("table_output"),
+      # ui.output_text("geocoder"),
+      ui.page_fluid(output_widget("map")),
+    ),  
+    ui.nav_panel("By Distance", 
+      ui.br(),
+      ui.input_numeric("length", "How long is your drive in km (one way)?", 0),
+      ui.input_slider("n_pax_d", "Number of People in the Car:", min=2, max=6, value=2, ticks=True),
+      ui.input_task_button("search_d", "Search"),
+      ui.output_table("table_output_d")
+    )
+  )
+)
+
+def server(input, output, session):
+    @reactive.event(input.search)
+    def calc_geocode():
+      address = input.source_address()
+      url = f"https://nominatim.openstreetmap.org/search?addressdetails=1&q={address}&format=json"
+      r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
+      response = r.json()[0]
+      return response
+
+    @reactive.calc
+    def parse_geocode():
+      response = calc_geocode()
+      lat = float(response['lat'])
+      lon = float(response['lon'])
+      name = response['display_name']
+      gc_dist = great_circle_distance(lat, lon, DEST_LAT, DEST_LON)
+
+      # Get suburb if exists, "" otherwise
+      address = response['address']
+      if address.get('suburb') is not None:
+        suburb = address['suburb']
+      else:
+        suburb = ""  
+      output = {
+        'lat': lat,
+        'lon': lon,
+        'gc_dist': gc_dist,
+        'name': name,
+        'suburb': suburb
+      }
+      return output
+
+    def get_road_dist(search_term):
+      # Case when we can't code to a suburb
+      if search_term == "":
+        return -1
+  
+      match = dist_heuristics.loc[dist_heuristics['locality'].str.contains(search_term, case=False, na=False), 'distance']
+
+      # Cases when can't find match or match to unknown distance metrics
+      if match.empty or match.iloc[0] == "unknown":
+        result = -1
+      else:
+        result = float(match.iloc[0])/1e3
+      return result
+
+    # @output
+    # @render.text()
+    # def debugger():
+    #   return parse_geocode()
+
+    @output
+    @render.text()
+    def confirmation():
+      return f"The address you entered is:\n{parse_geocode()['name']}"
+      # return 'hello'
+
+    @output
+    @render.table
+    def table_output():
+      geocode = parse_geocode()
+      suburb = geocode['suburb']
+      # pprint_dist = lambda dist: str(round(dist, 2)) + " km"
+
+      gc_dist = geocode['gc_dist']
+      gc_dist_str = dist_to_str(gc_dist)
+      road_dist = get_road_dist(suburb)
+      if road_dist < 0:
+        road_dist_str = "Unable to calculate road distance, using direct distance instead."
+        dist = gc_dist
+      else:
+        road_dist_str = dist_to_str(road_dist)
+        dist = road_dist
+
+      # assuming 10 L/100km & $2.5/L fuel for return
+      cost_ppax = dist * 0.1*2.5 / input.n_pax() * 2
+      cost_ppax_str = cost_to_str(cost_ppax) #"$" + str(round(cost_ppax,2))
+
+      output = []
+      output.append({"Item": "Suburb", "Value": suburb})
+      output.append({"Item": "Approximate Road Distance (one way)", "Value": road_dist_str})
+      output.append({"Item": "Direct Distance (one way)", "Value": gc_dist_str})
+      output.append({"Item": "Fuel Cost for Return/pax", "Value": cost_ppax_str})
+      
+      return pd.DataFrame(output)
+ 
+    @render_widget  
+    def map():
+        response = calc_geocode()
+        
+        lat = float(response['lat'])
+        lon = float(response['lon'])
+        bounds = ((DEST_LAT, DEST_LON), (lat, lon))
+
+        m = Map(center=(DEST_LAT, DEST_LON), zoom=10)
+        # geo_layer = GeoJSON(
+        #     data=data
+        # )
+        m.add(Marker(location=(DEST_LAT, DEST_LON), title="Destination"))
+        m.add(Marker(location=(lat, lon)))
+        print(type(lat))
+        m.fit_bounds(bounds)
+        # m.add(geo_layer)
+        return m
+
+    @output
+    @render.table
+    @reactive.event(input.search_d)
+    def table_output_d():
+      n_pax = input.n_pax()
+      length = input.length()
+      cost_ppax = length * 0.1*2.5/n_pax
+
+      output = []
+      output.append({"Item": "Distance (one way)", "Value": dist_to_str(length)})
+      output.append({"Item": "Fuel Cost for Return/pax", "Value": cost_to_str(cost_ppax)})
+      return pd.DataFrame(output)
+
+    # @render.table
+    # def table_output():
+    #   output = []
+    #   output.append({"Item": "aa", "Value": 12})
+    
+    #   return pd.DataFrame(output)
+
+
+    # @render.text
+    # def echo():
+    #   response = calc_geocode()
+    #   lat = float(response['lat'])
+    #   lon = float(response['lon'])
+    #   name = response['display_name']
+    #   dist = great_circle_distance(lat, lon, DEST_LAT, DEST_LON)
+    #   return f'{lat}, {lon}, {name}, {dist}'
+
+app = App(app_ui, server)
+
+```
+<!-- 
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 800
+
+from shiny import App, render, ui, reactive
+from shinywidgets import render_widget, output_widget
+from ipyleaflet import Map, Marker, GeoJSON
+import requests
+import pandas as pd 
+import pyodide_http
+import js
+import json
+from pyodide.http import open_url
+
+app_ui = ui.page_fluid(
+    ui.output_text_verbatim("test"),    
+    ui.input_text("source_address", "Source Address"),
+    # ui.input_numeric("long", "Long", 0),
+    ui.output_text_verbatim("txt"),
+    ui.page_fluid(output_widget("map"))  
+)
+
+def server(input, output, session):    
+    @output
+    @render.text
+    def txt():
+        # addy = input.source_address().replace(" ", "+")
+        # url = f"https://nominatim.openstreetmap.org/search?q={addy}&format=json"
+
+        # r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
+        # response = r.json()[0]
+
+        print("BEFORE")
+        df = pd.read_csv(open_url('/data/metro_vic_suburbs.csv'))
+        # df = pd.read_csv(open_url('https://github.com/bbpi2/bsf-leaders-retreat-2025/blob/main/data/metro_vic_suburbs.csv'))
+        print(df)
+        print("AFTER")
+        # print(head(df))
+
+        # lat = response['lat']
+        # lon = response['lon']
+        # name = response['display_name']
+        # my_secret = ${DATABASE_SERVER}
+        # return f"THE SECRET  The aaddress has is {name}: coords {lat}, {lon}"
+        return 'hello'
+
+
+    @reactive.calc
+    def get_lat_long():
+        addy = input.source_address().replace(" ", "+")
+        url = f"https://nominatim.openstreetmap.org/search?q={addy}&format=json"
+
+        r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
+        response = r.json()[0]
+        lat = response['lat']
+        lon = response['lon']  
+        return (lat, lon)
+
+    @render_widget  
+    def map():
+        # data = js.window.jsonData.to_py()
+        lat = get_lat_long()[0]
+        lon = get_lat_long()[1]
+        m = Map(center=(lat, lon), zoom=10)
+        geo_layer = GeoJSON(
+            data=data
+        )
+        m.add(Marker(location=(lat, lon)))
+        m.add(geo_layer)
+        return m
+
+app = App(app_ui, server)
+
+# async def fetch_url(url: str, type: str = "string"):
+
+#     response = await pyodide.http.pyfetch(url)
+
+#     if type == "json":
+#         # .json() parses the response as JSON and converts to dictionary.
+#         return await response.json()
+#     elif type == "string":
+#         # .string() returns the response as a string.
+#         return await response.string()
+#     elif type == "bytes":
+#         # .bytes() returns the response as a byte object.
+#         return await response.bytes()
+#     else:
+#         return None -->
+<!-- ``` -->
+
+## Methodology (all the nerdy details)
+
+### What's the difference between Direct Distance \& Road Distance?
+* The Direct Distance is equivalent to the [Great Circle Distance](https://en.wikipedia.org/wiki/Great-circle_distance) and measures out the length (in km) "as the crow flies" which is the shortest distance between two points on a sphere. This is done by taking the latitude & longitude of two points and computing the [Haversine formula](https://en.wikipedia.org/wiki/Haversine_formula).
+* The Road Distance takes into account the roads required to arrive at the destination. In this specific case, we apply an approximation since we can't calculate the exact road distance. By far this is the more accurate measure. 
+
+This tool will use the road distance by default.
+
+### Why can't we use the exact road distance?
+There is no easy \& free way to calculate the road distance using this tool.
+
+* The 'best' way to get road distance is using the Google maps API, which is not a free option.
+* There are open source versions such as [Open Route Service](https://openrouteservice.org/), but these have daily free limits and require an API key. Currently this website is hosted on github using [shinylive](https://shiny.posit.co/py/get-started/shinylive.html). This enables the web client to run a lot of compute (rather than having a dedicated server), but the downside is there is no real way to hide secret API keys.
+
+### What is the approximation being used?
+Although it cannot dynamically calculate road distances according to user input, it *can* calculate the road distance of a set of preset locations. This is what I did:
+
+1. Some bloke called [Matthew Proctor](https://www.matthewproctor.com/australian_postcodes#downloadlinks) has a great database of Victorian postcodes \& suburbs, which I downloaded.
+2. Using [Nominatim](https://nominatim.org/), each suburb/postcode was geocoded to a latitute \& longitude, giving me about 800 results.
+3. For each latitute & longitude, I used [Open Route Service](https://openrouteservice.org/) to calculate the road distance to the target destination (only about 20 of them failed).
+
+So now I have a list of suburbs and their 'general' distance to the target destination. There are three options I have here.and
+
+#### Method 1: The matched suburb (Currently Applied)
+This is the easiest but the least accurate method. Basically, when the user puts in an address, I geocode that address to a suburb.
+
+* If a suburb is found, then that's the source from which I calculate the road distance.
+* If a suburb is not found, then it gives up trying to calculate road distance.
+
+Essentially it calcualtes 'one' road distance per suburb and tries to match on that. 
+
+#### Method 2: The closest surburb
+Rather than assume the 'closest' viable point is the suburb the source address is in, this may not always be true. Each time you run a query, it will search the entire database of suburbs to find the closest one. But the basic implementation of this is $\mathcal{O}(n)$ where $n$ is the number of rows in the known suburb list. It's kinda costly implenentation especially web-client side.
+
+#### Method 3: The shortest distance
+Closest suburb doesn't mean it's the right direction. One could conceivably head the wrong way first. We need to find suburb:
+$$
+k_{min} = argmin(d_{s,k} + d_{k,d})
+$$
+Then once we find this suburb we apply:
+$$
+d = d_{s,k_{min}}^{gc} + d_{k_{min},d}^{road}
+$$
+
+#### What assumptions are made when calculating the fuel cost?
+* Where possible, it will use the road 
