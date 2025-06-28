@@ -1,4 +1,5 @@
 /.quarto/
 .venv/
 archived/
-scripts/
+/_*.local
+data-private/
