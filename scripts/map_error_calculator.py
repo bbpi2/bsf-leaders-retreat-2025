@@ -11,6 +11,23 @@ And has the following outputs:
 import pandas as pd
 import numpy as np
 import json
+import time
+import requests
+from dotenv import load_dotenv
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+DEST_LAT = -38.45956579986424
+DEST_LON = 145.2472955709111
+ORS_API_KEY = os.getenv("ORS_API_KEY")
+
+if ORS_API_KEY:
+    print(f"The secret value is FOUND")
+else:
+    print("Secret key not found.")
 
 METRO_SA4 = ['Melbourne - Inner', 'Melbourne - Inner East',
        'Melbourne - Inner South', 'Melbourne - North East',
@@ -43,14 +60,45 @@ def get_metro_polygon(poly, metro_suburbs):
     poly.update({'features': metro_features})
     return poly
 
+def ors_get_route(lat, lon):
+    headers = {
+        'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+    }
+    call = requests.get(f'https://api.openrouteservice.org/v2/directions/driving-car?api_key={ORS_API_KEY}&start={lon},{lat}&end={DEST_LON},{DEST_LAT}', headers=headers)
+
+    try:
+        outputs = call.json()['features'][0]['properties']['summary']
+        distance = outputs['distance']
+        duration = outputs['duration']
+    except:
+        distance = "Unknown"
+        duration = "Unknown"
+
+    return distance, duration
+
+def calculate_road_dist(df):
+    # df = df[:10]
+    # Purposely did NOT vectorise since API requires sleep
+    df['distance'] = ""
+    df['duration'] = ""
+    for index, row in df.iterrows():
+        lat = row['Lat_precise']
+        lon = row['Long_precise']
+        distance, duration = ors_get_route(lat, lon)
+        df.loc[index, 'distance'] = distance
+        df.loc[index, 'duration'] = duration
+        time.sleep(2)
+    
+    return df
     
 if __name__ == "__main__":
     metro_df = get_metro_suburbs()
     metro_suburbs = get_unique_suburbs(metro_df)
+    metro_df_dist = calculate_road_dist(metro_df)
     vic_poly = get_vic_polygon()
     metro_poly = get_metro_polygon(vic_poly, metro_suburbs)
 
-    metro_df.to_csv("../data/metro_vic_suburbs.csv")
+    metro_df_dist.to_csv("../data/metro_vic_suburbs.csv")
     # Write to a file
     with open('../data/metro_vic.json', 'w') as f:
         json.dump(metro_poly, f)
