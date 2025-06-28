@@ -8,11 +8,16 @@ resources:
 
 # (Beta) Fuel Cost Calculator 🧪
 
-This is an *experimental* tool to calculate the fuel costs per-passenger. 
+::: {.callout-important title="Important Disclaimer"}
 
-* The results are *approximations* made using certain assumptions (see Methodology section). 
-* Where possible it will use the road distance over the direct distance.
-* If the "By Address" tool doesn't work, you can try using the "By Distance" tool after searching up your route on [Google Maps](https://www.google.com/maps).
+* Calculations are only **estimates** since it makes many many approximations.
+* If it can't find a **road distance** the estimates could be wildly incorrect.
+
+:::
+
+::: {.callout-tip}
+For a more accurate estimate, search your route on [Google Maps](https://www.google.com/maps) and enter the distance in the "By Distance" tab.
+:::
 
 ```{shinylive-python}
 #| standalone: true
@@ -217,140 +222,71 @@ def server(input, output, session):
 app = App(app_ui, server)
 
 ```
-<!-- 
-```{shinylive-python}
-#| standalone: true
-#| viewerHeight: 800
 
-from shiny import App, render, ui, reactive
-from shinywidgets import render_widget, output_widget
-from ipyleaflet import Map, Marker, GeoJSON
-import requests
-import pandas as pd 
-import pyodide_http
-import js
-import json
-from pyodide.http import open_url
+## All the Nerdy Details
 
-app_ui = ui.page_fluid(
-    ui.output_text_verbatim("test"),    
-    ui.input_text("source_address", "Source Address"),
-    # ui.input_numeric("long", "Long", 0),
-    ui.output_text_verbatim("txt"),
-    ui.page_fluid(output_widget("map"))  
-)
-
-def server(input, output, session):    
-    @output
-    @render.text
-    def txt():
-        # addy = input.source_address().replace(" ", "+")
-        # url = f"https://nominatim.openstreetmap.org/search?q={addy}&format=json"
-
-        # r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
-        # response = r.json()[0]
-
-        print("BEFORE")
-        df = pd.read_csv(open_url('/data/metro_vic_suburbs.csv'))
-        # df = pd.read_csv(open_url('https://github.com/bbpi2/bsf-leaders-retreat-2025/blob/main/data/metro_vic_suburbs.csv'))
-        print(df)
-        print("AFTER")
-        # print(head(df))
-
-        # lat = response['lat']
-        # lon = response['lon']
-        # name = response['display_name']
-        # my_secret = ${DATABASE_SERVER}
-        # return f"THE SECRET  The aaddress has is {name}: coords {lat}, {lon}"
-        return 'hello'
-
-
-    @reactive.calc
-    def get_lat_long():
-        addy = input.source_address().replace(" ", "+")
-        url = f"https://nominatim.openstreetmap.org/search?q={addy}&format=json"
-
-        r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
-        response = r.json()[0]
-        lat = response['lat']
-        lon = response['lon']  
-        return (lat, lon)
-
-    @render_widget  
-    def map():
-        # data = js.window.jsonData.to_py()
-        lat = get_lat_long()[0]
-        lon = get_lat_long()[1]
-        m = Map(center=(lat, lon), zoom=10)
-        geo_layer = GeoJSON(
-            data=data
-        )
-        m.add(Marker(location=(lat, lon)))
-        m.add(geo_layer)
-        return m
-
-app = App(app_ui, server)
-
-# async def fetch_url(url: str, type: str = "string"):
-
-#     response = await pyodide.http.pyfetch(url)
-
-#     if type == "json":
-#         # .json() parses the response as JSON and converts to dictionary.
-#         return await response.json()
-#     elif type == "string":
-#         # .string() returns the response as a string.
-#         return await response.string()
-#     elif type == "bytes":
-#         # .bytes() returns the response as a byte object.
-#         return await response.bytes()
-#     else:
-#         return None -->
-<!-- ``` -->
-
-## Methodology (all the nerdy details)
+* Source location = where you are coming from.
+* Destination location = where you are going (in this case it's set to Cowes Phillip Island)
 
 ### What's the difference between Direct Distance \& Road Distance?
-* The Direct Distance is equivalent to the [Great Circle Distance](https://en.wikipedia.org/wiki/Great-circle_distance) and measures out the length (in km) "as the crow flies" which is the shortest distance between two points on a sphere. This is done by taking the latitude & longitude of two points and computing the [Haversine formula](https://en.wikipedia.org/wiki/Haversine_formula).
-* The Road Distance takes into account the roads required to arrive at the destination. In this specific case, we apply an approximation since we can't calculate the exact road distance. By far this is the more accurate measure. 
+* The Direct Distance is equivalent to the [Great Circle Distance](https://en.wikipedia.org/wiki/Great-circle_distance) and measures out the length (in km) "as the crow flies" which is the shortest distance between two points on a sphere. This is done by taking the latitude & longitude of two the locations and computing the [Haversine formula](https://en.wikipedia.org/wiki/Haversine_formula).
+* The Road Distance takes into account the roads required to arrive at the destination. This requires sophisticated graph solving algorithms which is often not worth building yourself. By far this is the more accurate measure. 
 
-This tool will use the road distance by default.
+We will use an <u>approximation</u> of Road Distance by default - if this cannot be found, then it fallsback to using Direct Distance.
 
-### Why can't we use the exact road distance?
-There is no easy \& free way to calculate the road distance using this tool.
+### Why are we approximating Road Distance?
 
-* The 'best' way to get road distance is using the Google maps API, which is not a free option.
-* There are open source versions such as [Open Route Service](https://openrouteservice.org/), but these have daily free limits and require an API key. Currently this website is hosted on github using [shinylive](https://shiny.posit.co/py/get-started/shinylive.html). This enables the web client to run a lot of compute (rather than having a dedicated server), but the downside is there is no real way to hide secret API keys.
+Calculating the Road Distance requires sophisticate graph solving algorithms and can be grouped in the class of [shortest path problem](https://en.wikipedia.org/wiki/Shortest_path_problem) (eg. Dijkstra's algorithm). It is not a great idea to write a custom solver because:
+
+* The tool runs almost entirely on the client-side web browser. It is a terrible idea to try to implement graph solving algorithms on web browsers.
+* The effort of writing one up from scratch is useful only insofar as it provides pedogogical value. It just doesn't make sense since these tools are already readily available as APIs.
+
+So if there are APIs available, why can't we use it for this tool? Let's consider the two main options:
+
+* **Google Maps** - this arguable the 'best' way to get routing information, but the API is not free.
+* [**Open Route Service**](https://openrouteservice.org/) - this is technically free, but has API limits, which require the user to provide an API key.
+
+Since this tool is built using [shinylive](https://shiny.posit.co/py/get-started/shinylive.html), all of its 'servers' are client-facing. The client browser is where the backend is run afterall. However, the downside to this is there is no real way to hide API secret keys, since to use the key we will have to eventually expose the secret to the end-user.
 
 ### What is the approximation being used?
-Although it cannot dynamically calculate road distances according to user input, it *can* calculate the road distance of a set of preset locations. This is what I did:
 
-1. Some bloke called [Matthew Proctor](https://www.matthewproctor.com/australian_postcodes#downloadlinks) has a great database of Victorian postcodes \& suburbs, which I downloaded.
-2. Using [Nominatim](https://nominatim.org/), each suburb/postcode was geocoded to a latitute \& longitude, giving me about 800 results.
-3. For each latitute & longitude, I used [Open Route Service](https://openrouteservice.org/) to calculate the road distance to the target destination (only about 20 of them failed).
+We are unable to dynamically calculate the route according to user-input of source location because of API restrictions. However, since the destination location is already fixed, we can calculate a set of distances from a list of suburbs. This will be useful in providing the approximation.
 
-So now I have a list of suburbs and their 'general' distance to the target destination. There are three options I have here.and
+#### How do we do this practically?
 
-#### Method 1: The matched suburb (Currently Applied)
-This is the easiest but the least accurate method. Basically, when the user puts in an address, I geocode that address to a suburb.
+1. Obtain a list of Victorian suburbs and postcodes - [Matthew Proctor](https://www.matthewproctor.com/australian_postcodes#downloadlinks) has a great database of this!
+2. Clean up suburbs dataset - we only really need to keep the metropolitan area subset for our usecase, so we filter by [SA4](https://www.abs.gov.au/ausstats/abs@.nsf/Lookup/by%20Subject/1270.0.55.001~July%202016~Main%20Features~Statistical%20Area%20Level%204%20(SA4)~10016). This ends up being about 800 entries.
+3. Geocode each suburb to a latitutde & longitude using [Nominatim](https://nominatim.org/).
+4. For each suburb, use [Open Route Service](https://openrouteservice.org/) to calculate the road distance (only about 20 of them failed).
 
-* If a suburb is found, then that's the source from which I calculate the road distance.
-* If a suburb is not found, then it gives up trying to calculate road distance.
+Now we have a list of suburbs with reference road distances - how do we use this information?
 
-Essentially it calcualtes 'one' road distance per suburb and tries to match on that. 
+#### Method 1: The Matched Suburb (Currently Applied)
+This is by far the simplest, but least accurate way. From the user-input, we find the suburb of the source location:
 
-#### Method 2: The closest surburb
-Rather than assume the 'closest' viable point is the suburb the source address is in, this may not always be true. Each time you run a query, it will search the entire database of suburbs to find the closest one. But the basic implementation of this is $\mathcal{O}(n)$ where $n$ is the number of rows in the known suburb list. It's kinda costly implenentation especially web-client side.
+* If a suburb is found, then we impute the road distance from the reference set.
+* If a suburb is not found, we give up on calculating the road distance.
 
-#### Method 3: The shortest distance
-Closest suburb doesn't mean it's the right direction. One could conceivably head the wrong way first. We need to find suburb:
-$$
-k_{min} = argmin(d_{s,k} + d_{k,d})
-$$
-Then once we find this suburb we apply:
-$$
-d = d_{s,k_{min}}^{gc} + d_{k_{min},d}^{road}
-$$
+#### Method 2: The Closest Surburb
 
-#### What assumptions are made when calculating the fuel cost?
-* Where possible, it will use the road 
+The obvious flaw with the above method is your location may be in a suburb, but you might actually be closer to another suburb's centroid! We can adjust the methodology:
+
+1. Calculate the direct distance between the source location & each suburb.
+2. Choose the suburb that is the closest to the source location and use that to impute the road distance value.
+
+The tricky thing with this method is the computation is $\mathcal{O}(n)$ according to the complexity of the reference set. This may be fine since we have a short list, but client-side only processing may be a limiting factor.
+
+#### Method 3: The Shortest Distance
+
+The above method can be flawed as well, since the reference suburb you choose may actually be *further* away from your destination that the source location. The adjusted methodology is:
+
+1. Calculate the direct distance between the source location & each suburb: $d_{gc}$
+2. Find the suburb that minimises the sum of $d_{gc}$ and the road distance in the reference dataset $d_{road}$
+3. The approximate road distance is precisely this sum.
+
+The benefit of this method is that it will favour an imputed road distance of a suburb that may be *further* from the source, but actually on the way to the destination. This method is computationally equivalent to Method 2.
+
+### What assumptions are made when calculating the fuel cost?
+* Using approximate road distance where possible.
+* The average fuel efficiency is [assumed](https://www.carsguide.com.au/car-advice/what-is-average-fuel-consumption-88469) to be 10L per 100km.
+* The cost of fuel is assumed to be $2.5/L.
