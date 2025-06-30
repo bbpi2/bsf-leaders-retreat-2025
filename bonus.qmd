@@ -124,7 +124,7 @@ def server(input, output, session):
       match = dist_heuristics.loc[dist_heuristics['locality'].str.contains(search_term, case=False, na=False), 'distance']
 
       # Cases when can't find match or match to unknown distance metrics
-      if match.empty or match.iloc[0] == "unknown":
+      if match.empty or match.iloc[0] == "Unknown":
         result = -1
       else:
         result = float(match.iloc[0])/1e3
