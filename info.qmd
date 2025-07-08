@@ -7,14 +7,35 @@ filters:
 
 This will be the home page for (most) of your retreat information!
 
+## Important things to note
+* On Friday, if you arrive after 20:00, please go straight to *House \#1*.
+
 ## Schedule
 
-⚠️ This part is to be confirmed ⚠️
-
+### Friday
 | Time | Activity |
 | --- | --- |
-| **FRIDAY** || 
-| 09:00 | Wake |
+| 17:00 | Early arrives check into both accommodation |
+| 20:30 | Supper at *House \#1* |
+
+### Saturday
+| Time | Activity |
+| --- | --- |
+| 08:30 | Breakfast at individual houses |
+| 09:30 | Activity Time \# 1 |
+| 12:30 | Lunch (Organise your own) |
+| 13:30 | Activity Time \# 2 |
+| 18:00 | Dinner at *House #1* |
+| 19:00 | Worship \& Devotions |
+
+### Sunday
+| Time | Activity |
+| --- | --- |
+| 08:30 | Breakfast at individual houses |
+| 09:30 | Checkout  |
+| 10:00 | Church Service |
+| 12:00 | Lunch (Organise your own) |
+| 13:00 | Drive back to Melbourne |
 
 ## Menu
 
@@ -30,6 +51,9 @@ Essentials:
  - [ ] Towels
  - [ ] Pillowcase (or just your own pillow)
  - [ ] Linen for the bed OR sleeping bag
+ - [ ] Toiletries
+ - [ ] Clothes (It will be [cold](http://www.bom.gov.au/vic/forecasts/phillipisland.shtml))
+ 
 
 Almost Essential:
 
