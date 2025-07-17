@@ -7,14 +7,36 @@ filters:
 
 This will be the home page for (most) of your retreat information!
 
+## Important Notes
+* If you arrive after 20:30 on the first night, please go straight to House \#1 
+* Please remember linen, pillowcases \& towels are not provided.
+
 ## Schedule
 
-⚠️ This part is to be confirmed ⚠️
 
+### Friday
 | Time | Activity |
 | --- | --- |
-| **FRIDAY** || 
-| 09:00 | Wake |
+| 18:00 | Arrive anytime after for check-in |
+| 20:30 | Supper |
+
+### Saturday
+| Time | Activity |
+| --- | --- |
+| 08:30 | Breakfast |
+| 09:30 | Activity \#1 |
+| 12:30 | Lunch (Self-Organised) |
+| 13:30 | Activity \#2 |
+| 18:00 | Dinner at House \#1 |
+| 17:00 | Worship \& Devotions |
+
+### Sunday
+| Time | Activity |
+| --- | --- |
+| 08:30 | Breakfast |
+| 09:30 | Checkout |
+| 10:00 | Church |
+| 12:00 | Lunch \& Drive back to Melbourne |
 
 ## Menu
 
@@ -43,6 +65,8 @@ Essentials:
  - [ ] Towels
  - [ ] Pillowcase (or just your own pillow)
  - [ ] Linen for the bed OR sleeping bag
+ - [ ] Clothes (It will be [cold](http://www.bom.gov.au/vic/forecasts/phillipisland.shtml))
+ - [ ] Toiletries
 
 Almost Essential:
 
@@ -52,4 +76,4 @@ Optional:
 
 - [ ] Musical instruments
 - [ ] Games
-- [ ] Snacks 
+- [ ] Snacks
