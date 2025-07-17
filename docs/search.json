@@ -1,5 +1,15 @@
 [
   {
+<<<<<<< HEAD
+=======
+    "objectID": "scripts/carpool.html",
+    "href": "scripts/carpool.html",
+    "title": "BSF Retreat 2025",
+    "section": "",
+    "text": "library(readr)\nlibrary(janitor)\nlibrary(dplyr)\nlibrary(httr)\nlibrary(glue)\nlibrary(stringr)\nlibrary(jsonlite)\nlibrary(tidyr)\n\ngeo_coder &lt;- function(postcode) {\n    query &lt;- glue(\"https://nominatim.openstreetmap.org/search?addressdetails=1&q=Australia,+Victoria+{postcode}&format=json\")\n    # print(query)\n    response &lt;- content(\n        GET(url = query, add_headers(`User-Agent` = \"Mozilla/5.0\")),\n        as = \"parsed\", type = \"application/json\")\n    output &lt;- c()\n    output$lat &lt;- as.numeric(response[[1]]$lat)\n    output$lon &lt;- as.numeric(response[[1]]$lon)\n    output$suburb &lt;- response[[1]]$address$suburb\n    Sys.sleep(1)\n    return(output)\n}\n\ndata &lt;- read_csv(\"../data-private/carpool.csv\", col_types = cols(Postcode = col_character())) %&gt;%\n    clean_names() %&gt;%\n    mutate(group = case_when(\n        !is.na(transport_note) ~ \"Special\",\n        carpool == \"I have my own transport and am happy to drive others (carpool)\" ~ \"Driver\",\n        carpool == \"I need help with transport - would like to carpool with someone\" ~ \"Passenger\",\n        TRUE ~ \"Other\"\n    )) %&gt;%\n    mutate(transport_note = replace_na(transport_note, \"\"))\n\ndata_carpool &lt;- data %&gt;% filter(group %in% c(\"Driver\", \"Passenger\", \"Special\"))\n\n# Need to run thru geocoder one row at a time to not overload API\nfor (i in 1:nrow(data_carpool)) {\n    row &lt;- data_carpool[i, ]\n    postcode &lt;- row$postcode\n\n    geocode &lt;- geo_coder(postcode)\n\n    data_carpool$lat[i] &lt;- geocode$lat\n    data_carpool$lon[i] &lt;- geocode$lon\n    data_carpool$suburb[i] &lt;- geocode$suburb\n}\n\n\ndata_carpool #%&gt;% filter(!group %in% c(\"Driver\", \"Passenger\")) %&gt;% arrange(suburb)\n\n\nlibrary(leaflet)\nlibrary(htmlwidgets)\n\n# Create a color palette based on 'category'\npal &lt;- colorFactor(palette = c(\"red\", \"blue\", \"green\"), domain = data_carpool$group)\n\n# Build the map\nmap &lt;- leaflet(data_carpool, width = \"100%\", height = 600) %&gt;%\n  addTiles() %&gt;%\n  addCircleMarkers(\n    lng = ~lon,\n    lat = ~lat,\n    color = ~pal(group),\n    # radius = 8,\n    # stroke = FALSE,\n    fillOpacity = 0.8,\n    popup = ~paste(name, \" \", transport_note)\n  ) %&gt;%\n  addLegend(\"bottomright\", pal = pal, values = ~group, title = \"Group\")\n# save it\nsaveWidget(map, \"carpool_map.html\", selfcontained = FALSE)\n\n# open in your default browser\nbrowseURL(\"carpool_map.html\")"
+  },
+  {
+>>>>>>> 856bf64 (added activities)
     "objectID": "index.html",
     "href": "index.html",
     "title": "BSF Retreat 2025",
@@ -73,7 +83,19 @@
     "objectID": "experimental.html#the-menu",
     "href": "experimental.html#the-menu",
     "title": "Important Info",
+<<<<<<< HEAD
     "section": "The Menu",
     "text": "The Menu\nQuartoで日本語も表せる \\[\n\\int_0^\\infty x dx \\to \\infty\n\\]"
+=======
+    "section": "Important things to note",
+    "text": "Important things to note\n\nOn Friday, if you arrive after 20:00, please go straight to House #1."
+  },
+  {
+    "objectID": "info.html#activities",
+    "href": "info.html#activities",
+    "title": "Important Info",
+    "section": "Activities",
+    "text": "Activities\nWe will have most of Saturday to do stuff, some suggested activities include:\n\nBowling\nLaser Tag\nChocolate Factory\nA Maze’n Things\nBeach walk\nDay Hikes\nBoardgames\n\nWe will organise ourselves after breakfast."
+>>>>>>> 856bf64 (added activities)
   }
 ]
