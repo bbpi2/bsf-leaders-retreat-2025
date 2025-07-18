@@ -22,12 +22,13 @@ This will be the home page for (most) of your retreat information!
 ### Saturday
 | Time | Activity |
 | --- | --- |
-| 08:30 | Breakfast |
-| 09:30 | Activity \#1 |
+| 09:00 | Breakfast |
+| 10:00 | Activity \#1 |
 | 12:30 | Lunch (Self-Organised) |
 | 13:30 | Activity \#2 |
 | 18:00 | Dinner at House \#1 |
 | 19:00 | Worship \& Devotions |
+| 21:00 | (Optional) Stargazing |
 
 ### Sunday
 | Time | Activity |
@@ -39,7 +40,47 @@ This will be the home page for (most) of your retreat information!
 
 ## Menu
 
-⚠️ This part is to be confirmed ⚠️
+### Friday Supper
+*Savory*
+
+* Cheese board
+* Corn Chips + Salsa + Guac
+* Popcorn
+
+*Sweet*
+
+* Fruits
+* Apple pie
+* Banana bread
+* Waffles
+
+*Drinks*
+
+* Tea
+* Hot choc 
+
+### Saturday Breakfast
+
+* Bread
+* Bacon \& Eggs
+* Hashbrowns
+
+### Saturday Dinner
+*Entree*
+
+* Turkish bread with Truffle Oil 🍄
+* Pumpkin Soup with Cream
+* Green Leaf Salad
+
+*Main*
+
+* Beef Ragu Pasta
+* Chicken Wings
+
+### Sunday Breakfast
+* Pancakes
+* Berries
+* Maple Syrup \& Jam
 
 ## Activities
 We will have most of Saturday to do stuff, some suggested activities include:
